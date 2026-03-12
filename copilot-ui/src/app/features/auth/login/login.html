@@ -22,15 +22,14 @@
     <h1 class="title">Welcome Back</h1>
     <p class="subtitle">Login to your AI Copilot</p>
 
-    <!-- pure HTML form - no Angular bindings -->
-    <form class="login-form">
+    <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <!-- email input with floating label effect -->
       <div class="form-group">
         <label for="email">Email</label>
         <input 
           type="email" 
           id="email"
-          name="email"
+          formControlName="email"
           placeholder="Enter your email" 
           class="floating-input">
         <div class="input-highlight"></div>
@@ -41,15 +40,15 @@
       <div class="form-group">
         <label for="password">Password</label>
         <input 
-          type="password"
+          [type]="showPassword ? 'text' : 'password'"
           id="password"
-          name="password"
+          formControlName="password"
           placeholder="Enter your password"
           class="floating-input">
         <div class="input-highlight"></div>
         <i class="fas fa-lock input-icon"></i>
         <!-- password visibility toggle (pure HTML, icon only) -->
-        <button type="button" class="password-toggle" tabindex="-1">
+        <button type="button" class="password-toggle" tabindex="-1" (click)="togglePasswordVisibility()">
           <i class="fas fa-eye"></i>
         </button>
         <!-- visual strength meter (static for design) -->
@@ -61,7 +60,7 @@
       <!-- remember me & forgot password row -->
       <div class="form-options">
         <label class="checkbox-container">
-          <input type="checkbox" name="rememberMe">
+          <input type="checkbox" formControlName="rememberMe">
           <span class="checkmark"></span>
           <span class="remember-text">Remember me</span>
         </label>
@@ -69,7 +68,7 @@
       </div>
 
       <!-- animated login button -->
-      <button type="submit" class="login-btn">
+      <button type="submit" class="login-btn" [disabled]="loading">
         <span class="btn-text">Login</span>
         <span class="btn-icon">
           <i class="fas fa-arrow-right"></i>

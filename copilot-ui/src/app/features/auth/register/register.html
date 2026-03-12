@@ -1,1 +1,43 @@
-<p>register works!</p>
+<div class="register-page">
+  <div class="register-card">
+    <h1 class="title">Create Account</h1>
+    <p class="subtitle">Join the AI Copilot</p>
+
+    <form class="register-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" class="floating-input" placeholder="Email" />
+        <div class="input-highlight"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" formControlName="password" class="floating-input" placeholder="Password" />
+        <div class="input-highlight"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword" class="floating-input" placeholder="Confirm Password" />
+        <div class="input-highlight"></div>
+      </div>
+
+      <div class="terms-checkbox">
+        <input id="terms" type="checkbox" formControlName="terms" />
+        <label for="terms">I agree to the Terms and Privacy Policy</label>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+      <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+
+      <button type="submit" class="register-btn" [disabled]="loading">
+        <span class="btn-text">Register</span>
+      </button>
+
+      <p class="signup-link">
+        Already have an account?
+        <a routerLink="/auth/login" class="register-link">Login</a>
+      </p>
+    </form>
+  </div>
+</div>
