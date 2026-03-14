@@ -1,18 +1,22 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthRoutingModule } from './auth-routing-module';
+import { ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { AuthRoutingModule } from './auth-routing.module';  // ✅ .module with dot
 
 import { LoginComponent } from './login/login';
-import { Register } from './register/register';
-import { LoginSuccess } from './success/success';
+import { RegisterComponent } from './register/register';
+import { SuccessComponent } from './success/success';
 
 @NgModule({
   imports: [
     CommonModule,
-    AuthRoutingModule,
-    LoginComponent,       // standalone component imported
-    Register,
-    LoginSuccess
-  ],
+    ReactiveFormsModule,
+    HttpClientModule,
+    AuthRoutingModule,  // ✅ Routing module yahan import hona chahiye
+    LoginComponent,
+    RegisterComponent,
+    SuccessComponent
+  ]
 })
 export class AuthModule { }

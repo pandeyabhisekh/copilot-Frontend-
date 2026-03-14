@@ -1,42 +1,150 @@
 <div class="register-page">
   <div class="register-card">
-    <h1 class="title">Create Account</h1>
-    <p class="subtitle">Join the AI Copilot</p>
-
-    <form class="register-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <h2>Create Account</h2>
+    <p>Join AI Copilot today</p>
+    
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <!-- Name Field -->
       <div class="form-group">
-        <label for="email">Email</label>
-        <input id="email" type="email" formControlName="email" class="floating-input" placeholder="Email" />
-        <div class="input-highlight"></div>
+        <label>Full Name</label>
+        <input 
+          type="text" 
+          formControlName="name" 
+          placeholder="Enter your full name"
+          [class.is-invalid]="isFieldInvalid('name')"
+        >
+        <div class="error-message" *ngIf="hasError('name', 'required')">
+          Name is required
+        </div>
+        <div class="error-message" *ngIf="hasError('name', 'minlength')">
+          Minimum 2 characters required
+        </div>
       </div>
 
+      <!-- Email Field -->
       <div class="form-group">
-        <label for="password">Password</label>
-        <input id="password" type="password" formControlName="password" class="floating-input" placeholder="Password" />
-        <div class="input-highlight"></div>
+        <label>Email</label>
+        <input 
+          type="email" 
+          formControlName="email" 
+          placeholder="Enter your email"
+          [class.is-invalid]="isFieldInvalid('email')"
+        >
+        <div class="error-message" *ngIf="hasError('email', 'required')">
+          Email is required
+        </div>
+        <div class="error-message" *ngIf="hasError('email', 'email')">
+          Please enter a valid email address
+        </div>
       </div>
 
+      <!-- Password Field with Strength Meter -->
       <div class="form-group">
-        <label for="confirmPassword">Confirm Password</label>
-        <input id="confirmPassword" type="password" formControlName="confirmPassword" class="floating-input" placeholder="Confirm Password" />
-        <div class="input-highlight"></div>
+        <label>Password</label>
+        <input 
+          type="password" 
+          formControlName="password" 
+          placeholder="Create a password"
+          (input)="checkPasswordStrength()"
+          [class.is-invalid]="isFieldInvalid('password')"
+        >
+        
+        <!-- Password Strength Meter -->
+        <div class="strength-meter" *ngIf="registerForm.get('password')?.value">
+          <div class="strength-bar" 
+               [style.width.%]="getPasswordStrength()"
+               [style.background]="getStrengthColor()">
+          </div>
+          <span class="strength-text" [style.color]="getStrengthColor()">
+            {{ getStrengthText() }}
+          </span>
+        </div>
+
+        <!-- Password Criteria -->
+        <div class="password-criteria">
+          <p class="criteria-title">Password must contain:</p>
+          <ul>
+            <li [class.valid]="passwordCriteria.minLength">
+              <span class="icon">{{ passwordCriteria.minLength ? '✓' : '○' }}</span>
+              At least 8 characters
+            </li>
+            <li [class.valid]="passwordCriteria.hasUpperCase">
+              <span class="icon">{{ passwordCriteria.hasUpperCase ? '✓' : '○' }}</span>
+              One uppercase letter (A-Z)
+            </li>
+            <li [class.valid]="passwordCriteria.hasLowerCase">
+              <span class="icon">{{ passwordCriteria.hasLowerCase ? '✓' : '○' }}</span>
+              One lowercase letter (a-z)
+            </li>
+            <li [class.valid]="passwordCriteria.hasNumber">
+              <span class="icon">{{ passwordCriteria.hasNumber ? '✓' : '○' }}</span>
+              One number (0-9)
+            </li>
+            <li [class.valid]="passwordCriteria.hasSpecialChar">
+              <span class="icon">{{ passwordCriteria.hasSpecialChar ? '✓' : '○' }}</span>
+              One special character (@$!%*?&)
+            </li>
+          </ul>
+        </div>
+
+        <div class="error-message" *ngIf="hasError('password', 'required')">
+          Password is required
+        </div>
+        <div class="error-message" *ngIf="hasError('password', 'pattern') && !hasError('password', 'required')">
+          Password must meet all criteria above
+        </div>
       </div>
 
-      <div class="terms-checkbox">
-        <input id="terms" type="checkbox" formControlName="terms" />
-        <label for="terms">I agree to the Terms and Privacy Policy</label>
+      <!-- Confirm Password Field -->
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input 
+          type="password" 
+          formControlName="confirmPassword" 
+          placeholder="Confirm your password"
+          [class.is-invalid]="isFieldInvalid('confirmPassword') || hasMismatchError()"
+        >
+        <div class="error-message" *ngIf="hasError('confirmPassword', 'required')">
+          Please confirm your password
+        </div>
+        <div class="error-message" *ngIf="hasMismatchError()">
+          Passwords do not match
+        </div>
       </div>
 
-      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
-      <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+      <!-- Terms Checkbox -->
+      <div class="terms-group">
+        <label class="checkbox-container">
+          <input type="checkbox" formControlName="terms">
+          <span class="checkmark"></span>
+          I agree to the Terms of Service and Privacy Policy
+        </label>
+        <div class="error-message" *ngIf="hasError('terms', 'required')">
+          You must accept the terms
+        </div>
+      </div>
 
-      <button type="submit" class="register-btn" [disabled]="loading">
-        <span class="btn-text">Register</span>
+      <!-- Messages -->
+      <div *ngIf="errorMessage" class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage" class="alert alert-success">
+        {{ successMessage }}
+      </div>
+
+      <!-- Submit Button -->
+      <button 
+        type="submit" 
+        [disabled]="loading || !isFormValid()"
+        [class.btn-disabled]="!isFormValid()">
+        <span *ngIf="!loading">Create Account</span>
+        <span *ngIf="loading">
+          <i class="fas fa-spinner fa-spin"></i> Creating Account...
+        </span>
       </button>
 
-      <p class="signup-link">
-        Already have an account?
-        <a routerLink="/auth/login" class="register-link">Login</a>
+      <p class="login-link">
+        Already have an account? <a routerLink="/auth/login">Sign In</a>
       </p>
     </form>
   </div>

@@ -1,20 +1,8 @@
-<!-- Add this to your component or index.html -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-<div class="success-page">
-  <div class="orb-3"></div>
-  <div class="orb-4"></div>
-  <div class="grid-overlay"></div>
-  
+<div class="success-container">
   <div class="success-card">
-    <div class="card-accent"></div>
-    
-    <div class="success-icon">
-      <i class="fas fa-check"></i>
-    </div>
-    
-    <h1 class="title">Welcome bhai!!! 👋</h1>
-    <p class="subtitle">You have successfully signed in</p>
+    <div class="success-icon">✓</div>
+    <h1>Login Successful!</h1>
+    <p>Welcome back to AI Copilot</p>
     
     <div class="user-info" *ngIf="user; else noUser">
       <p><strong>Name:</strong> {{ user.name }}</p>
@@ -22,17 +10,12 @@
     </div>
     
     <ng-template #noUser>
-      <p class="subtitle" style="color: #ffa66f;">
-        <i class="fas fa-exclamation-circle"></i> No user info found
-      </p>
+      <p class="loading">Loading user information...</p>
     </ng-template>
     
-    <a routerLink="/auth/login" class="back-link">
-      Return to Login
-    </a>
-  </div>
-  
-  <div class="success-note">
-    Your AI Copilot is ready to assist you
+    <div class="success-actions">
+      <a routerLink="/dashboard" class="btn">Go to Dashboard</a>
+      <button class="btn logout" (click)="logout()">Logout</button>
+    </div>
   </div>
 </div>

@@ -1,0 +1,17 @@
+<div class="dashboard-container">
+  <div class="dashboard-card">
+    <h1>Dashboard</h1>
+    <p>Welcome to your cockpit.</p>
+
+    <div class="user-info" *ngIf="user; else noUser">
+      <p><strong>Name:</strong> {{ user.name }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+    </div>
+
+    <ng-template #noUser>
+      <p class="loading">No user is currently logged in.</p>
+    </ng-template>
+
+    <button class="btn" (click)="logout()">Logout</button>
+  </div>
+</div>

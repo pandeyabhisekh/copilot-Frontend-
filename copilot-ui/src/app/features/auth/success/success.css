@@ -1,442 +1,79 @@
-/* success-page.css */
-.success-page {
-  min-height: 100vh;
-  width: 100%;
+.success-container {
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
-  background: linear-gradient(145deg, #0a0f1e 0%, #141b33 100%);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  overflow: hidden;
-  animation: backgroundColorShift 12s infinite alternate;
-}
-
-/* Floating orbs - same as login page for consistency */
-.success-page::before {
-  content: '';
-  position: absolute;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle at 30% 30%, #4f6aff, #2a3bb0);
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.5;
-  top: -150px;
-  right: -100px;
-  animation: floatOrb 20s infinite ease-in-out;
-  z-index: 0;
-}
-
-.success-page::after {
-  content: '';
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle at 70% 70%, #ff4f9e, #b02a5e);
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.4;
-  bottom: -200px;
-  left: -150px;
-  animation: floatOrb 20s infinite ease-in-out;
-  animation-delay: -5s;
-  z-index: 0;
-}
-
-/* Additional floating orbs */
-.orb-3 {
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle at 50% 50%, #4affb5, #2ab07c);
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.3;
-  top: 20%;
-  left: 20%;
-  animation: floatOrb 18s infinite ease-in-out;
-  animation-delay: -2s;
-  z-index: 0;
-}
-
-.orb-4 {
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle at 40% 60%, #b58aff, #6a2ab0);
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.25;
-  bottom: 10%;
-  right: 10%;
-  animation: floatOrb 22s infinite ease-in-out;
-  animation-delay: -10s;
-  z-index: 0;
-}
-
-/* Grid overlay */
-.grid-overlay {
-  position: absolute;
-  inset: 0;
-  background-image: 
-    linear-gradient(rgba(100, 150, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(100, 150, 255, 0.08) 1px, transparent 1px);
-  background-size: 50px 50px;
-  z-index: 1;
-  pointer-events: none;
-  animation: gridShift 15s linear infinite;
-}
-
-/* Success Card - Glassmorphism */
-.success-card {
-  position: relative;
-  z-index: 10;
-  background: rgba(20, 30, 50, 0.7);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  border-radius: 40px;
-  padding: 50px;
-  width: 480px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 
-    0 30px 60px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
-    0 0 30px rgba(80, 140, 255, 0.3);
-  animation: cardFloat 6s infinite ease-in-out;
-  overflow: hidden;
-  text-align: center;
-}
-
-/* Success Icon/Animation */
-.success-card::before {
-  content: '✓';
-  position: absolute;
-  top: -30px;
-  right: -30px;
-  width: 120px;
-  height: 120px;
-  background: linear-gradient(135deg, #4CAF50, #45a049);
-  font-size: 60px;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  opacity: 0.1;
-  transform: rotate(15deg);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   font-family: Arial, sans-serif;
 }
 
-/* Animated accent bar */
-.card-accent {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, #00c9ff, #92fe9d, #ff6b6b, #667eea);
-  background-size: 300% 100%;
-  animation: gradientShift 6s infinite alternate;
+.success-card {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
 }
 
-/* Success Icon */
 .success-icon {
-  width: 90px;
-  height: 90px;
-  background: linear-gradient(145deg, #4CAF50, #45a049);
+  width: 80px;
+  height: 80px;
+  background: #4CAF50;
+  color: white;
+  font-size: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 25px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
-  animation: iconPulse 2s infinite;
+  margin: 0 auto 20px;
 }
 
-.success-icon i {
-  font-size: 45px;
-  color: white;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
-}
-
-/* Title */
-.title {
-  text-align: center;
-  font-size: 42px;
-  font-weight: 700;
-  margin-bottom: 15px;
-  background: linear-gradient(120deg, #ffffff, #c0d4ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.5px;
-}
-
-/* Subtitle */
-.subtitle {
-  text-align: center;
-  color: rgba(200, 220, 255, 0.9);
-  margin-bottom: 30px;
-  font-size: 18px;
-  font-weight: 400;
-  letter-spacing: 0.3px;
-}
-
-/* User Info Card */
 .user-info {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 25px;
-  margin: 30px 0;
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 5px;
+  margin: 20px 0;
   text-align: left;
-  backdrop-filter: blur(5px);
-  animation: fadeInUp 0.6s ease-out;
 }
 
 .user-info p {
-  margin: 12px 0;
-  font-size: 16px;
-  color: #e0e8ff;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  margin: 5px 0;
+  color: #333;
 }
 
 .user-info strong {
-  color: #92b9ff;
-  min-width: 70px;
-  font-weight: 600;
+  color: #667eea;
 }
 
-.user-info p::before {
-  font-family: 'Font Awesome 6 Free';
-  font-weight: 900;
-  margin-right: 10px;
-  font-size: 14px;
-  color: #4CAF50;
-}
-
-.user-info p:first-child::before {
-  content: '\f007'; /* user icon */
-}
-
-.user-info p:last-child::before {
-  content: '\f0e0'; /* envelope icon */
-}
-
-/* Back Link Button */
-.back-link {
+.btn {
   display: inline-block;
-  padding: 14px 35px;
-  background: linear-gradient(135deg, #1e3c72, #2a5298, #1e3c72);
-  background-size: 200% auto;
+  padding: 10px 20px;
+  background: #667eea;
   color: white;
   text-decoration: none;
-  border-radius: 30px;
-  font-size: 16px;
-  font-weight: 600;
-  margin-top: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 20px rgba(0, 30, 100, 0.5);
-  transition: all 0.4s;
-  position: relative;
-  overflow: hidden;
+  border-radius: 5px;
+  transition: all 0.3s;
 }
 
-.back-link:hover {
-  background-position: right center;
+.btn:hover {
+  background: #764ba2;
   transform: translateY(-2px);
-  box-shadow: 0 15px 30px rgba(0, 80, 255, 0.4);
-  color: white;
 }
 
-.back-link::before {
-  content: '←';
-  margin-right: 8px;
-  font-size: 18px;
-  transition: transform 0.3s;
+.success-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
 }
 
-.back-link:hover::before {
-  transform: translateX(-5px);
+.btn.logout {
+  background: #ff416c;
+  border: none;
 }
 
-.back-link::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.6s;
-}
-
-.back-link:hover::after {
-  left: 100%;
-}
-
-/* Success Note */
-.success-note {
-  position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: rgba(200, 220, 255, 0.6);
-  font-size: 14px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  white-space: nowrap;
-  z-index: 10;
-  animation: fadeInUp 1s ease-out;
-}
-
-.success-note::before,
-.success-note::after {
-  content: '✦';
-  margin: 0 15px;
-  color: #92b9ff;
-  font-size: 12px;
-  animation: sparkle 2s infinite;
-}
-
-.success-note::after {
-  animation-delay: 1s;
-}
-
-/* No User Template */
-ng-template + * {
-  color: #ffa66f;
-  font-style: italic;
-  margin: 20px 0;
-}
-
-/* Confetti Effect - Optional */
-.confetti {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: #4CAF50;
-  opacity: 0.6;
-  animation: confetti 3s ease-in-out infinite;
-}
-
-/* Animations */
-@keyframes floatOrb {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(5%, 5%) scale(1.05); }
-  50% { transform: translate(-5%, 10%) scale(0.98); }
-  75% { transform: translate(10%, -5%) scale(1.03); }
-}
-
-@keyframes backgroundColorShift {
-  0% { background: linear-gradient(145deg, #0a0f1e, #141b33); }
-  100% { background: linear-gradient(145deg, #0c1528, #1a2542); }
-}
-
-@keyframes gridShift {
-  0% { background-position: 0 0; }
-  100% { background-position: 50px 50px; }
-}
-
-@keyframes cardFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
-}
-
-@keyframes iconPulse {
-  0%, 100% { 
-    transform: scale(1); 
-    box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
-  }
-  50% { 
-    transform: scale(1.1); 
-    box-shadow: 0 20px 40px rgba(76, 175, 80, 0.6);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes sparkle {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.2); }
-}
-
-@keyframes confetti {
-  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-}
-
-/* Responsive Design */
-@media (max-width: 520px) {
-  .success-card {
-    width: 90%;
-    padding: 30px 20px;
-  }
-
-  .title {
-    font-size: 32px;
-  }
-
-  .subtitle {
-    font-size: 16px;
-  }
-
-  .user-info {
-    padding: 15px;
-  }
-
-  .user-info p {
-    font-size: 14px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-  }
-
-  .success-note {
-    font-size: 12px;
-    white-space: normal;
-    text-align: center;
-    width: 90%;
-  }
-
-  .success-note::before,
-  .success-note::after {
-    display: none;
-  }
-}
-
-/* Loading State */
-.loading {
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-/* Print styles */
-@media print {
-  .success-page {
-    background: white;
-  }
-  
-  .success-card {
-    box-shadow: none;
-    border: 1px solid #ccc;
-  }
+.btn.logout:hover {
+  background: #e33b5e;
 }

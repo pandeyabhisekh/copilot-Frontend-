@@ -1,10 +1,9 @@
-// src/app/features/auth/login/login.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environments';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -34,7 +33,6 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Check if user just registered
     this.route.queryParams.subscribe(params => {
       if (params['registered'] === 'success') {
         this.successMessage = 'Registration successful! Please login with your credentials.';
@@ -58,41 +56,48 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
+    // ✅ PLAIN PASSWORD - NO HASHING
     const loginData = {
       email: this.loginForm.value.email,
       password: this.loginForm.value.password
     };
 
+    console.log('🔑 Login attempt:', { email: loginData.email });
+
     this.http.post(`${environment.apiUrl}/auth/login`, loginData)
       .subscribe({
         next: (response: any) => {
+          console.log('✅ Login response:', response);
           this.loading = false;
           
-          // Store token if remember me is checked
-          if (this.loginForm.value.rememberMe) {
-            localStorage.setItem('token', response.token);
+          if (response.success) {
+            // Store token
+            if (this.loginForm.value.rememberMe) {
+              localStorage.setItem('token', response.token);
+              localStorage.setItem('user', JSON.stringify(response.user));
+            } else {
+              sessionStorage.setItem('token', response.token);
+              sessionStorage.setItem('user', JSON.stringify(response.user));
+            }
+            
+            this.router.navigate(['/auth/success']);
           } else {
-            sessionStorage.setItem('token', response.token);
+            this.errorMessage = response.message || 'Login failed';
           }
-          
-          // Store user data
-          localStorage.setItem('user', JSON.stringify(response.user));
-          
-          // Redirect to success page
-          this.router.navigate(['/auth/success']);
         },
         error: (error) => {
+          console.error('❌ Login error:', error);
           this.loading = false;
           
           if (error.status === 401) {
             this.errorMessage = 'Invalid email or password.';
           } else if (error.status === 404) {
             this.errorMessage = 'User not found. Please register first.';
+          } else if (error.status === 0) {
+            this.errorMessage = 'Cannot connect to server. Make sure backend is running on port 8000.';
           } else {
-            this.errorMessage = 'Login failed. Please try again later.';
+            this.errorMessage = error.error?.message || 'Login failed. Please try again later.';
           }
-          
-          console.error('Login error:', error);
         }
       });
   }

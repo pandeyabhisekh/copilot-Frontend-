@@ -1,98 +1,140 @@
-<!-- login.html -->
 <div class="login-page">
-  <!-- floating orbs / animated blobs -->
+  <!-- animated background elements -->
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
   <div class="orb orb-4"></div>
-  
-  <!-- animated grid overlay -->
   <div class="grid-overlay"></div>
   
-  <!-- glassmorphism login card -->
+  <!-- floating particles -->
+  <div class="particles">
+    <div class="particle" style="--x: 10%; --y: 20%; --delay: 0s;"></div>
+    <div class="particle" style="--x: 80%; --y: 70%; --delay: 2s;"></div>
+    <div class="particle" style="--x: 30%; --y: 85%; --delay: 4s;"></div>
+    <div class="particle" style="--x: 90%; --y: 15%; --delay: 6s;"></div>
+    <div class="particle" style="--x: 45%; --y: 45%; --delay: 8s;"></div>
+  </div>
+  
+  <!-- main login card -->
   <div class="login-card">
-    <!-- decorative top accent -->
-    <div class="card-accent"></div>
+    <!-- animated border gradient -->
+    <div class="card-border"></div>
     
-    <!-- header with animated icon -->
-    <div class="header-icon">
-      <i class="fas fa-robot"></i>
-    </div>
-    
-    <h1 class="title">Welcome Back</h1>
-    <p class="subtitle">Login to your AI Copilot</p>
-
-    <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <!-- email input with floating label effect -->
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input 
-          type="email" 
-          id="email"
-          formControlName="email"
-          placeholder="Enter your email" 
-          class="floating-input">
-        <div class="input-highlight"></div>
-        <i class="fas fa-envelope input-icon"></i>
-      </div>
-
-      <!-- password input with strength indicator -->
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input 
-          [type]="showPassword ? 'text' : 'password'"
-          id="password"
-          formControlName="password"
-          placeholder="Enter your password"
-          class="floating-input">
-        <div class="input-highlight"></div>
-        <i class="fas fa-lock input-icon"></i>
-        <!-- password visibility toggle (pure HTML, icon only) -->
-        <button type="button" class="password-toggle" tabindex="-1" (click)="togglePasswordVisibility()">
-          <i class="fas fa-eye"></i>
-        </button>
-        <!-- visual strength meter (static for design) -->
-        <div class="strength-meter">
-          <div class="strength-bar" style="width: 60%;"></div>
+    <!-- card content -->
+    <div class="card-content">
+      <!-- logo with glow effect -->
+      <div class="logo-wrapper">
+        <div class="logo-glow"></div>
+        <div class="logo-icon">
+          <i class="fas fa-robot"></i>
         </div>
       </div>
-
-      <!-- remember me & forgot password row -->
-      <div class="form-options">
-        <label class="checkbox-container">
-          <input type="checkbox" formControlName="rememberMe">
-          <span class="checkmark"></span>
-          <span class="remember-text">Remember me</span>
-        </label>
-        <a routerLink="/auth/forgot-password" class="forgot-link">Forgot Password?</a>
+      
+      <!-- header text with gradient -->
+      <div class="header-text">
+        <h1 class="title">Welcome Back</h1>
+        <p class="subtitle">Sign in to continue your journey</p>
       </div>
 
-      <!-- animated login button -->
-      <button type="submit" class="login-btn" [disabled]="loading">
-        <span class="btn-text">Login</span>
-        <span class="btn-icon">
-          <i class="fas fa-arrow-right"></i>
-        </span>
-        <div class="btn-shine"></div>
-      </button>
+      <!-- login form -->
+      <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <!-- email input with modern design -->
+        <div class="input-group">
+          <div class="input-wrapper">
+            <i class="fas fa-envelope input-icon"></i>
+            <input 
+              type="email" 
+              formControlName="email"
+              placeholder=" "
+              class="modern-input"
+            >
+            <label class="input-label">Email Address</label>
+            <div class="input-focus-ring"></div>
+          </div>
+          <div class="input-underline"></div>
+        </div>
 
-      <!-- divider with AI effect -->
-      <div class="divider">
-        <span class="divider-line"></span>
-        <span class="divider-text">
-          <i class="fas fa-microchip"></i> secure access <i class="fas fa-microchip"></i>
-        </span>
-        <span class="divider-line"></span>
-      </div>
+        <!-- password input with toggle -->
+        <div class="input-group">
+          <div class="input-wrapper">
+            <i class="fas fa-lock input-icon"></i>
+            <input 
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder=" "
+              class="modern-input"
+            >
+            <label class="input-label">Password</label>
+            <button 
+              type="button" 
+              class="password-toggle" 
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+            >
+              <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+            <div class="input-focus-ring"></div>
+          </div>
+          <div class="input-underline"></div>
+        </div>
 
-      <!-- signup link with micro-interaction -->
-      <p class="signup-link">
-        Don't have an account?
-        <a routerLink="/auth/register" class="register-link">
-          Register
-          <i class="fas fa-sparkles"></i>
-        </a>
-      </p>
-    </form>
+        <!-- remember me & forgot password -->
+        <div class="form-options">
+          <label class="checkbox-wrapper">
+            <input type="checkbox" formControlName="rememberMe" class="hidden-checkbox">
+            <span class="custom-checkbox">
+              <i class="fas fa-check check-icon"></i>
+            </span>
+            <span class="checkbox-label">Remember me</span>
+          </label>
+          
+          <a routerLink="/auth/forgot-password" class="forgot-link">
+            <span>Forgot Password?</span>
+            <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+
+        <!-- login button with ripple effect -->
+        <button type="submit" class="login-button" [disabled]="loading">
+          <span class="button-text">{{ loading ? 'Signing in...' : 'Sign In' }}</span>
+          <span class="button-icon">
+            <i class="fas fa-arrow-right"></i>
+          </span>
+          <span class="button-ripple"></span>
+        </button>
+
+        <!-- error/success messages -->
+        <div class="message-container" *ngIf="errorMessage || successMessage">
+          <div class="message error" *ngIf="errorMessage">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ errorMessage }}</span>
+          </div>
+          <div class="message success" *ngIf="successMessage">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ successMessage }}</span>
+          </div>
+        </div>
+
+        <!-- divider with text -->
+        <div class="divider">
+          <span class="divider-line"></span>
+          <span class="divider-text">
+            <i class="fas fa-microchip"></i>
+            new here?
+            <i class="fas fa-microchip"></i>
+          </span>
+          <span class="divider-line"></span>
+        </div>
+
+        <!-- register link with animation -->
+        <p class="register-prompt">
+          Don't have an account?
+          <a routerLink="/auth/register" class="register-link">
+            Create account
+            <i class="fas fa-sparkles"></i>
+          </a>
+        </p>
+      </form>
+    </div>
   </div>
 </div>

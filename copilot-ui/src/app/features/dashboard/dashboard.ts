@@ -1,38 +1,33 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';  // ✅ Router import karo
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-success',
+  selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './success.html',
-  styleUrls: ['./success.css']
+  templateUrl: './dashboard.html',
+  styleUrls: ['./dashboard.css']
 })
-export class SuccessComponent implements OnInit {
+export class DashboardComponent implements OnInit {
   user: any = null;
 
-  constructor(private router: Router) {}  // ✅ Constructor add karo
+  constructor(private router: Router) {}
 
   ngOnInit(): void {
     const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
     if (userData) {
       this.user = JSON.parse(userData);
-      console.log('👤 Logged in user:', this.user);
+    } else {
+      this.router.navigate(['/auth/login']);
     }
   }
 
-  // ✅ Logout method add karo
   logout(): void {
-    // Clear storage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('user');
-    
-    // Navigate to login
     this.router.navigate(['/auth/login']);
-    
-    console.log('👋 Logged out successfully');
   }
 }
