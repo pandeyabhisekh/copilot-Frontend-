@@ -18,172 +18,262 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
-  <div class="main-content">
-    <!-- Welcome Card -->
-    <div class="success-card">
-      <div class="success-icon">✓</div>
-      <h1>Welcome Back!</h1>
-      <p class="subtitle" *ngIf="user">Logged in as <strong>{{ user.login || user.name }}</strong></p>
-      
-      <div class="user-info" *ngIf="user">
-        <div class="user-info-item">
-          <i class="fas fa-user-circle"></i>
-          <span><strong>Name:</strong> {{ user.name }}</span>
+  <div class="main-layout">
+    <!-- History Sidebar (Left Side) -->
+    <div class="history-sidebar">
+      <div class="sidebar-header">
+        <h3>
+          <i class="fas fa-history"></i>
+          Search History
+        </h3>
+        <button class="btn-clear" (click)="clearHistory()" title="Clear history">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </div>
+
+      <div class="history-list">
+        <!-- Loading State -->
+        <div *ngIf="loadingHistory" class="history-loading">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>Loading history...</span>
         </div>
-        <div class="user-info-item">
-          <i class="fas fa-envelope"></i>
-          <span><strong>Email:</strong> {{ user.email }}</span>
+
+        <!-- Error State -->
+        <div *ngIf="historyError" class="history-error">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>{{ historyError }}</span>
+          <button (click)="loadHistory()" class="btn-retry">
+            <i class="fas fa-redo-alt"></i> Retry
+          </button>
         </div>
-        <div class="user-info-item" *ngIf="user.github_id">
-          <i class="fab fa-github"></i>
-          <span><strong>GitHub ID:</strong> {{ user.github_id }}</span>
+
+        <!-- History Items -->
+        <div *ngIf="!loadingHistory && !historyError">
+          <div *ngIf="historyItems.length === 0" class="history-empty">
+            <i class="fas fa-search"></i>
+            <p>No search history yet</p>
+            <p class="empty-hint">Your searches will appear here</p>
+          </div>
+
+          <div class="history-item" 
+               *ngFor="let item of historyItems; trackBy: trackByFn" 
+               (click)="loadFromHistory(item)"
+               [class.active]="activeHistoryId === item.id">
+            
+            <div class="item-icon" [style.background]="getTypeColor(item.search_type)">
+              <i [class]="getIcon(item.search_type)"></i>
+            </div>
+            
+            <div class="item-content">
+              <div class="item-header">
+                <span class="item-type">{{ item.search_type | titlecase }}</span>
+                <span class="item-time">{{ formatTime(item.created_at) }}</span>
+              </div>
+              <div class="item-query">{{ item.query }}</div>
+              <div class="item-summary" *ngIf="item.result_summary">
+                {{ item.result_summary }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- History Stats -->
+      <div class="sidebar-footer" *ngIf="historyItems.length > 0">
+        <div class="stats">
+          <span><i class="fas fa-database"></i> {{ historyItems.length }} items</span>
+          <span><i class="far fa-clock"></i> Last {{ formatTime(historyItems[0]?.created_at) }}</span>
         </div>
       </div>
     </div>
 
-    <!-- GitHub Explorer -->
-    <div class="github-explorer">
-      <h2 class="section-title">
-        <i class="fab fa-github"></i>
-        GitHub Repository Explorer
-      </h2>
+    <!-- Main Content Area -->
+    <div class="main-content">
+      <!-- GitHub Explorer -->
+      <div class="github-explorer">
+        <h2 class="section-title">
+          <i class="fab fa-github"></i>
+          GitHub Repository Explorer
+        </h2>
 
-      <!-- Repo Input -->
-      <div class="repo-input-wrapper">
-        <input
-          type="text"
-          class="repo-input"
-          placeholder="https://github.com/username/repo"
-          [(ngModel)]="repoUrl"
-          (keyup.enter)="fetchRepository()"
-        />
-        <button class="btn-fetch" (click)="fetchRepository()" [disabled]="loading">
-          <i class="fas" [ngClass]="loading ? 'fa-spinner fa-spin' : 'fa-search'"></i>
-          {{ loading ? 'Fetching...' : 'Explore' }}
+        <!-- Repo Input -->
+        <div class="repo-input-wrapper">
+          <input
+            type="text"
+            class="repo-input"
+            placeholder="https://github.com/username/repo"
+            [(ngModel)]="repoUrl"
+            (keyup.enter)="fetchRepository()"
+          />
+          <button class="btn-fetch" (click)="fetchRepository()" [disabled]="loading">
+            <i class="fas" [ngClass]="loading ? 'fa-spinner fa-spin' : 'fa-search'"></i>
+            {{ loading ? 'Fetching...' : 'Explore' }}
+          </button>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="error" class="error-message">
+          <i class="fas fa-exclamation-circle"></i>
+          {{ error }}
+        </div>
+
+        <!-- Repository Content -->
+        <div *ngIf="repository" class="repo-content">
+          <!-- Repo Header -->
+          <div class="repo-header">
+            <div class="repo-title">
+              <i class="fab fa-github repo-icon"></i>
+              <div>
+                <h3>{{ repository.full_name }}</h3>
+                <p class="repo-description">{{ repository.description || 'No description' }}</p>
+              </div>
+            </div>
+
+            <div class="repo-stats">
+              <span class="stat-badge">
+                <i class="fas fa-code"></i> {{ repository.language || 'N/A' }}
+              </span>
+              <span class="stat-badge">
+                <i class="far fa-star"></i> {{ formatNumber(repository.stargazers_count) }}
+              </span>
+              <span class="stat-badge">
+                <i class="fas fa-code-branch"></i> {{ formatNumber(repository.forks_count) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="repo-tabs">
+            <button class="tab-btn" [class.active]="activeTab === 'info'" (click)="activeTab='info'">
+              <i class="fas fa-info-circle"></i> Info
+            </button>
+            <button class="tab-btn" [class.active]="activeTab === 'contents'" (click)="activeTab='contents'">
+              <i class="fas fa-folder-open"></i> Contents
+              <span class="badge" *ngIf="repoContents.length > 0">{{ repoContents.length }}</span>
+            </button>
+          </div>
+
+          <!-- INFO TAB -->
+          <div *ngIf="activeTab === 'info'" class="tab-content">
+            <div class="info-grid">
+              <p><strong>Repository:</strong> {{ repository.full_name }}</p>
+              <p><strong>Default Branch:</strong> {{ repository.default_branch || 'main' }}</p>
+              <p><strong>Created:</strong> {{ repository.created_at | date }}</p>
+              <p><strong>Updated:</strong> {{ repository.updated_at | date }}</p>
+            </div>
+            <a [href]="repository.html_url" target="_blank" class="github-link">
+              <i class="fab fa-github"></i> Open on GitHub
+            </a>
+          </div>
+
+          <!-- CONTENTS TAB -->
+          <div *ngIf="activeTab === 'contents'" class="tab-content">
+            <!-- Breadcrumb -->
+            <div class="breadcrumb" *ngIf="breadcrumbs.length > 0">
+              <span class="breadcrumb-item" (click)="goToBreadcrumb(-1)">
+                <i class="fas fa-home"></i> root
+              </span>
+              <ng-container *ngFor="let crumb of breadcrumbs; let i=index">
+                <i class="fas fa-chevron-right"></i>
+                <span class="breadcrumb-item" (click)="goToBreadcrumb(i)">
+                  <i class="fas fa-folder"></i> {{ crumb.name }}
+                </span>
+              </ng-container>
+            </div>
+
+            <!-- Loading -->
+            <div *ngIf="loadingContents" class="loading-state">
+              <i class="fas fa-spinner fa-spin"></i> Loading contents...
+            </div>
+
+            <!-- Contents List -->
+            <div *ngIf="!loadingContents && repoContents.length > 0" class="contents-list">
+              <div *ngFor="let item of repoContents; trackBy: trackByFn" 
+                   class="content-item"
+                   [class.folder]="item.type === 'dir'"
+                   (click)="item.type === 'dir' ? navigateToFolder(item) : openFile(item)">
+                
+                <div class="item-icon">
+                  <i [class]="item.type === 'dir' ? 'fas fa-folder' : 'fas fa-file-alt'"></i>
+                </div>
+                
+                <div class="item-name">{{ item.name }}</div>
+                
+                <div class="item-size" *ngIf="item.type === 'file'">
+                  {{ item.size | filesize }}
+                </div>
+                <div class="item-size" *ngIf="item.type === 'dir'">—</div>
+                
+                <div class="item-actions">
+                  <a *ngIf="item.type === 'file'" [href]="item.download_url" target="_blank" 
+                     class="btn-download" (click)="$event.stopPropagation()" title="Download">
+                    <i class="fas fa-download"></i>
+                  </a>
+                  <a [href]="item.html_url" target="_blank" 
+                     class="btn-github" (click)="$event.stopPropagation()" title="View on GitHub">
+                    <i class="fab fa-github"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty -->
+            <div *ngIf="!loadingContents && repoContents.length === 0" class="empty-state">
+              <i class="fas fa-folder-open"></i>
+              <p>No files or folders found</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Debug message when repository is null -->
+        <div *ngIf="!repository && !loading && !error" class="info-message">
+          <i class="fas fa-info-circle"></i>
+          Enter a GitHub repository URL above to explore
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- File Viewer Modal -->
+  <div class="modal" *ngIf="showFileViewer" (click)="closeFileViewer()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="file-info">
+          <i [class]="getFileIcon(selectedFile)"></i>
+          <h3>{{ selectedFile?.name }}</h3>
+        </div>
+        <button class="btn-close" (click)="closeFileViewer()">
+          <i class="fas fa-times"></i>
         </button>
       </div>
-
-      <!-- Error -->
-      <div *ngIf="error" class="error-message">
-        <i class="fas fa-exclamation-circle"></i>
-        {{ error }}
-      </div>
-
-      <!-- Repo Loaded -->
-      <div *ngIf="repository" class="repo-content">
-        <!-- Repo Header -->
-        <div class="repo-header">
-          <div class="repo-title">
-            <i class="fab fa-github repo-icon"></i>
-            <div>
-              <h3>{{ repository.full_name }}</h3>
-              <p class="repo-description">{{ repository.description || 'No description available' }}</p>
-            </div>
-          </div>
-
-          <div class="repo-stats">
-            <span class="stat-badge">
-              <i class="fas fa-code"></i>
-              {{ repository.language || 'N/A' }}
-            </span>
-            <span class="stat-badge">
-              <i class="far fa-star"></i>
-              {{ formatNumber(repository.stargazers_count) }}
-            </span>
-            <span class="stat-badge">
-              <i class="fas fa-code-branch"></i>
-              {{ formatNumber(repository.forks_count) }}
-            </span>
-          </div>
+      
+      <div class="modal-body">
+        <!-- Loading -->
+        <div *ngIf="loadingFile" class="loading-state">
+          <i class="fas fa-spinner fa-spin"></i> Loading file content...
         </div>
-
-        <!-- Tabs -->
-        <div class="repo-tabs">
-          <button class="tab-btn" [class.active]="activeTab === 'info'" (click)="activeTab='info'">
-            <i class="fas fa-info-circle"></i> Info
-          </button>
-          <button class="tab-btn" [class.active]="activeTab === 'contents'" (click)="activeTab='contents'">
-            <i class="fas fa-folder-open"></i> Contents
-            <span class="badge" *ngIf="repoContents.length > 0">{{ repoContents.length }}</span>
-          </button>
+        
+        <!-- Error -->
+        <div *ngIf="fileError" class="error-message">
+          <i class="fas fa-exclamation-circle"></i> {{ fileError }}
         </div>
-
-        <!-- INFO TAB -->
-        <div *ngIf="activeTab === 'info'" class="tab-content">
-          <div class="info-grid">
-            <p><strong>Repository:</strong> {{ repository.full_name }}</p>
-            <p><strong>Default Branch:</strong> {{ repository.default_branch || 'main' }}</p>
-            <p><strong>Created:</strong> {{ repository.created_at | date:'mediumDate' }}</p>
-            <p><strong>Updated:</strong> {{ repository.updated_at | date:'mediumDate' }}</p>
-            <p><strong>Visibility:</strong> {{ repository.private ? 'Private' : 'Public' }}</p>
-          </div>
-          <a [href]="repository.html_url" target="_blank" class="github-link">
-            <i class="fab fa-github"></i> Open on GitHub
+        
+        <!-- Text Content -->
+        <div *ngIf="!loadingFile && !fileError && fileContent" class="text-content">
+          <pre><code>{{ fileContent }}</code></pre>
+        </div>
+        
+        <!-- Image Preview -->
+        <div *ngIf="!loadingFile && !fileError && isImage(selectedFile)" class="image-preview">
+          <img [src]="selectedFile?.download_url" [alt]="selectedFile?.name">
+        </div>
+        
+        <!-- Binary/Other Files -->
+        <div *ngIf="!loadingFile && !fileError && !fileContent && !isImage(selectedFile)" class="binary-content">
+          <p>Cannot preview this file type.</p>
+          <a [href]="selectedFile?.download_url" target="_blank" class="btn-download">
+            <i class="fas fa-download"></i> Download
           </a>
-        </div>
-
-        <!-- CONTENTS TAB -->
-        <div *ngIf="activeTab === 'contents'" class="tab-content">
-          <!-- Breadcrumb -->
-          <div class="breadcrumb" *ngIf="breadcrumbs.length > 0">
-            <span class="breadcrumb-item" (click)="goToBreadcrumb(-1)">
-              <i class="fas fa-home"></i> root
-            </span>
-            <ng-container *ngFor="let crumb of breadcrumbs; let i=index">
-              <i class="fas fa-chevron-right"></i>
-              <span class="breadcrumb-item" (click)="goToBreadcrumb(i)">
-                <i class="fas fa-folder"></i> {{ crumb.name }}
-              </span>
-            </ng-container>
-          </div>
-
-          <!-- Loading -->
-          <div *ngIf="loadingContents" class="loading-state">
-            <i class="fas fa-spinner fa-spin"></i> Loading contents...
-          </div>
-
-          <!-- Debug Info (remove in production) -->
-          <div *ngIf="debug && repoContents.length > 0" class="debug-info">
-            <i class="fas fa-bug"></i> {{ repoContents.length }} items loaded
-          </div>
-
-          <!-- Contents List -->
-          <div *ngIf="!loadingContents && repoContents.length > 0" class="contents-list">
-            <div *ngFor="let item of repoContents; trackBy: trackByFn" 
-                 class="content-item"
-                 [class.folder]="item.type === 'dir'"
-                 (click)="item.type === 'dir' && navigateToFolder(item)">
-              
-              <div class="item-icon">
-                <i [class]="item.type === 'dir' ? 'fas fa-folder' : 'fas fa-file-alt'"></i>
-              </div>
-              
-              <div class="item-name">{{ item.name }}</div>
-              
-              <div class="item-size" *ngIf="item.type === 'file'">
-                {{ item.size | filesize }}
-              </div>
-              <div class="item-size" *ngIf="item.type === 'dir'">—</div>
-              
-              <div class="item-actions">
-                <a *ngIf="item.type === 'file'" [href]="item.download_url" target="_blank" 
-                   class="btn-download" (click)="$event.stopPropagation()" title="Download">
-                  <i class="fas fa-download"></i>
-                </a>
-                <a [href]="item.html_url" target="_blank" 
-                   class="btn-github" (click)="$event.stopPropagation()" title="View on GitHub">
-                  <i class="fab fa-github"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Empty -->
-          <div *ngIf="!loadingContents && repoContents.length === 0" class="empty-state">
-            <i class="fas fa-folder-open"></i>
-            <p>No files or folders found</p>
-          </div>
         </div>
       </div>
     </div>
