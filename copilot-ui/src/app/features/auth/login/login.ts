@@ -1,27 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
   loginForm: FormGroup;
   loading = false;
+  githubLoading = false;
   errorMessage = '';
   successMessage = '';
   showPassword = false;
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient,
+    private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -30,12 +30,13 @@ export class LoginComponent implements OnInit {
       password: ['', Validators.required],
       rememberMe: [false]
     });
-  }
 
-  ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       if (params['registered'] === 'success') {
-        this.successMessage = 'Registration successful! Please login with your credentials.';
+        this.successMessage = 'Registration successful! Please login.';
+      }
+      if (params['error'] === 'github_auth_failed') {
+        this.errorMessage = 'GitHub login failed. Please try again.';
       }
     });
   }
@@ -54,51 +55,62 @@ export class LoginComponent implements OnInit {
 
     this.loading = true;
     this.errorMessage = '';
-    this.successMessage = '';
 
-    // ✅ PLAIN PASSWORD - NO HASHING
-    const loginData = {
-      email: this.loginForm.value.email,
-      password: this.loginForm.value.password
-    };
+    console.log('📤 Attempting login for:', this.loginForm.value.email);
 
-    console.log('🔑 Login attempt:', { email: loginData.email });
-
-    this.http.post(`${environment.apiUrl}/auth/login`, loginData)
-      .subscribe({
-        next: (response: any) => {
-          console.log('✅ Login response:', response);
-          this.loading = false;
-          
-          if (response.success) {
-            // Store token
-            if (this.loginForm.value.rememberMe) {
-              localStorage.setItem('token', response.token);
-              localStorage.setItem('user', JSON.stringify(response.user));
+    this.authService.login(
+      this.loginForm.value.email,
+      this.loginForm.value.password
+    ).subscribe({
+      next: (response) => {
+        console.log('✅ Login response:', response);
+        this.loading = false;
+        
+        if (response.success) {
+          console.log('🚀 Redirecting to success page...');
+          // ✅ CHANGE HERE: Redirect to /auth/success
+          this.router.navigateByUrl('/auth/success').then(success => {
+            if (success) {
+              console.log('Navigation to success page successful');
             } else {
-              sessionStorage.setItem('token', response.token);
-              sessionStorage.setItem('user', JSON.stringify(response.user));
+              console.error('Navigation failed');
+              window.location.href = '/auth/success';
             }
-            
-            this.router.navigate(['/auth/success']);
-          } else {
-            this.errorMessage = response.message || 'Login failed';
-          }
-        },
-        error: (error) => {
-          console.error('❌ Login error:', error);
-          this.loading = false;
-          
-          if (error.status === 401) {
-            this.errorMessage = 'Invalid email or password.';
-          } else if (error.status === 404) {
-            this.errorMessage = 'User not found. Please register first.';
-          } else if (error.status === 0) {
-            this.errorMessage = 'Cannot connect to server. Make sure backend is running on port 8000.';
-          } else {
-            this.errorMessage = error.error?.message || 'Login failed. Please try again later.';
-          }
+          }).catch(err => {
+            console.error('Navigation error:', err);
+            window.location.href = '/auth/success';
+          });
+        } else {
+          this.errorMessage = response.message || 'Login failed';
         }
-      });
+      },
+      error: (error) => {
+        console.error('❌ Login error:', error);
+        this.loading = false;
+        
+        if (error.status === 401) {
+          this.errorMessage = 'Invalid email or password';
+        } else if (error.status === 404) {
+          this.errorMessage = 'User not found. Please register first.';
+        } else {
+          this.errorMessage = error.error?.message || 'Login failed. Please try again.';
+        }
+      }
+    });
+  }
+
+  onGitHubLogin(): void {
+    this.githubLoading = true;
+    this.errorMessage = '';
+    console.log('🚀 Initiating GitHub login...');
+    this.authService.githubLogin();
+  }
+
+  fillTestUser(): void {
+    const test = this.authService.getTestCredentials();
+    this.loginForm.patchValue({
+      email: test.email,
+      password: test.password
+    });
   }
 }

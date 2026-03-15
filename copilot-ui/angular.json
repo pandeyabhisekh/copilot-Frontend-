@@ -4,7 +4,9 @@
   "cli": {
     "packageManager": "npm",
     "analytics": "b3454833-a4c3-4865-8b0b-1a6905849624"
+
   },
+  
   "newProjectRoot": "projects",
   "projects": {
     "copilot-ui": {
@@ -54,6 +56,10 @@
           "defaultConfiguration": "production"
         },
         "serve": {
+           "options": {
+    "port": 4200,
+    "host": "0.0.0.0"
+  },
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {

@@ -1,0 +1,92 @@
+<div class="github-callback-container">
+  <!-- Animated Background -->
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+  
+  <div class="callback-card">
+    <!-- Loading State -->
+    <div *ngIf="loading && !error" class="loading-state">
+      <div class="github-logo">
+        <i class="fab fa-github"></i>
+      </div>
+      
+      <div class="spinner"></div>
+      
+      <h2>Completing GitHub Login</h2>
+      <p class="subtitle">Please wait while we authenticate you...</p>
+      
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- Success State -->
+    <div *ngIf="!loading && !error" class="success-state">
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      
+      <h2>Login Successful!</h2>
+      <p class="subtitle">You have been successfully authenticated.</p>
+      
+      <div class="redirect-message">
+        <p>Redirecting to dashboard in {{ countdown }} seconds...</p>
+        <div class="countdown-circle">
+          <svg viewBox="0 0 36 36">
+            <circle
+              class="countdown-bg"
+              cx="18"
+              cy="18"
+              r="16"
+              fill="none"
+              stroke="#e0e0e0"
+              stroke-width="2"
+            ></circle>
+            <circle
+              class="countdown-fill"
+              cx="18"
+              cy="18"
+              r="16"
+              fill="none"
+              stroke="#4CAF50"
+              stroke-width="2"
+              stroke-dasharray="100"
+              [attr.stroke-dashoffset]="100 - (countdown * 100 / 3)"
+            ></circle>
+          </svg>
+          <span class="countdown-number">{{ countdown }}</span>
+        </div>
+      </div>
+      
+      <button class="manual-link" (click)="manualRedirect()">
+        Click here if not redirected
+      </button>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="error-state">
+      <div class="error-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      
+      <h2>Authentication Failed</h2>
+      <p class="error-message">{{ error }}</p>
+      
+      <div class="redirect-message">
+        <p>Redirecting to login in {{ countdown }} seconds...</p>
+      </div>
+      
+      <button class="back-button" (click)="manualRedirect()">
+        <i class="fas fa-arrow-left"></i>
+        Back to Login
+      </button>
+    </div>
+
+    <!-- Footer Note -->
+    <p class="footer-note" *ngIf="!error">
+      <i class="fas fa-lock"></i>
+      Secured by GitHub OAuth
+    </p>
+  </div>
+</div>
