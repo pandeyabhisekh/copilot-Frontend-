@@ -267,6 +267,59 @@
         <div *ngIf="!loadingFile && !fileError && isImage(selectedFile)" class="image-preview">
           <img [src]="selectedFile?.download_url" [alt]="selectedFile?.name">
         </div>
+        <!-- File Viewer Modal -->
+<div class="modal" *ngIf="showFileViewer" (click)="closeFileViewer()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="file-info">
+        <i [class]="getFileIcon(selectedFile)"></i>
+        <h3>{{ selectedFile?.name }}</h3>
+        <span class="file-size-badge" *ngIf="selectedFile?.size">{{ selectedFile.size | filesize }}</span>
+      </div>
+      <button class="btn-close" (click)="closeFileViewer()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <!-- Loading -->
+      <div *ngIf="loadingFile" class="loading-state">
+        <i class="fas fa-spinner fa-spin"></i> Loading file content...
+      </div>
+      
+      <!-- Error -->
+      <div *ngIf="fileError" class="error-message">
+        <i class="fas fa-exclamation-circle"></i> {{ fileError }}
+      </div>
+      
+      <!-- Text Content - FIXED (removed optional chain) -->
+      <div *ngIf="!loadingFile && !fileError && fileContent && fileContent.length > 0" class="text-content">
+        <pre><code>{{ fileContent }}</code></pre>
+      </div>
+      
+      <!-- Image Preview -->
+      <div *ngIf="!loadingFile && !fileError && isImage(selectedFile) && !fileContent" class="image-preview">
+        <img [src]="selectedFile?.download_url" [alt]="selectedFile?.name">
+      </div>
+      
+      <!-- Binary/Other Files -->
+      <div *ngIf="!loadingFile && !fileError && !fileContent && !isImage(selectedFile)" class="binary-content">
+        <i class="fas fa-file-code"></i>
+        <p>Cannot preview this file type.</p>
+        <a [href]="selectedFile?.download_url" target="_blank" class="btn-download">
+          <i class="fas fa-download"></i> Download
+        </a>
+      </div>
+
+      <!-- Debug Info - REMOVE AFTER VERIFYING -->
+      <div *ngIf="!loadingFile && !fileError && fileContent" class="debug-info" style="background: #e8f0fe; padding: 15px; margin-top: 15px; border-radius: 5px; border-left: 4px solid #667eea;">
+        <strong style="color: #667eea;">✅ File Content Loaded</strong>
+        <p style="margin: 5px 0 0; font-size: 12px; color: #333;">Length: {{ fileContent.length }} characters</p>
+        <p style="margin: 2px 0 0; font-size: 12px; color: #666;">First 100 chars: {{ fileContent.substring(0, 100) }}...</p>
+      </div>
+    </div>
+  </div>
+</div>
         
         <!-- Binary/Other Files -->
         <div *ngIf="!loadingFile && !fileError && !fileContent && !isImage(selectedFile)" class="binary-content">

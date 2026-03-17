@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';  // ✅ Add ChangeDetectorRef
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -69,7 +69,8 @@ export class SuccessComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private cd: ChangeDetectorRef  // ✅ Add this
   ) {}
 
   ngOnInit(): void {
@@ -444,6 +445,9 @@ export class SuccessComponent implements OnInit {
           }
           this.loadingFile = false;
           console.log('✅ File content loaded');
+          
+          // ✅ FORCE CHANGE DETECTION
+          this.cd.detectChanges();
         },
         error: (err) => {
           console.error('❌ Error loading file via auth:', err);
@@ -460,7 +464,6 @@ export class SuccessComponent implements OnInit {
     
     console.log('📡 Loading file directly from GitHub:', this.selectedFile.download_url);
     
-    // Use fetch instead of HttpClient to avoid CORS issues
     fetch(this.selectedFile.download_url)
       .then(response => {
         if (!response.ok) {
@@ -471,12 +474,16 @@ export class SuccessComponent implements OnInit {
       .then(data => {
         this.fileContent = data;
         this.loadingFile = false;
-        console.log('✅ File content loaded directly');
+        console.log('✅ File content loaded directly, length:', data.length);
+        
+        // ✅ FORCE CHANGE DETECTION
+        this.cd.detectChanges();
       })
       .catch(err => {
         console.error('❌ Error loading file directly:', err);
         this.loadingFile = false;
         this.fileError = err.message || 'Failed to load file';
+        this.cd.detectChanges();
       });
   }
 

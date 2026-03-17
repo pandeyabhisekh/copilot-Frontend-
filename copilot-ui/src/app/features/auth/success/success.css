@@ -641,19 +641,19 @@
   margin-bottom: 10px;
 }
 
-/* Modal */
+/* ========== MODAL STYLES (FIXED) ========== */
 .modal {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
 }
 
 @keyframes fadeIn {
@@ -664,12 +664,13 @@
 .modal-content {
   background: white;
   width: 90%;
-  max-width: 900px;
+  max-width: 1000px;
   max-height: 90vh;
-  border-radius: 10px;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
-  animation: slideUp 0.3s;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
 }
 
 @keyframes slideUp {
@@ -678,71 +679,177 @@
 }
 
 .modal-header {
-  padding: 20px;
-  border-bottom: 1px solid #e0e0e0;
+  padding: 20px 25px;
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: #f8fafc;
+  border-radius: 16px 16px 0 0;
 }
 
 .file-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
 }
 
 .file-info i {
-  font-size: 24px;
+  font-size: 28px;
   color: #667eea;
 }
 
+.file-info h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.file-size-badge {
+  font-size: 12px;
+  padding: 4px 10px;
+  background: #e0e7ff;
+  color: #667eea;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
 .btn-close {
-  padding: 8px 12px;
+  padding: 8px 16px;
   background: #ff4757;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
-  transition: all 0.3s;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
 .btn-close:hover {
   background: #ff6b81;
+  transform: scale(1.05);
 }
 
 .modal-body {
-  padding: 20px;
+  padding: 25px;
   overflow-y: auto;
-  max-height: calc(90vh - 80px);
+  max-height: calc(90vh - 90px);
+  background: white;
+  border-radius: 0 0 16px 16px;
+}
+
+/* Loading State in Modal */
+.modal-body .loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #667eea;
+}
+
+.modal-body .loading-state i {
+  font-size: 40px;
+  margin-bottom: 15px;
+}
+
+.modal-body .loading-state span {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Error Message in Modal */
+.modal-body .error-message {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 500;
+  border-left: 4px solid #dc2626;
+}
+
+/* Text Content - File Display */
+.text-content {
+  background: #1e1e2f;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #334155;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .text-content pre {
-  background: #1e293b;
+  margin: 0;
+  padding: 25px;
   color: #e2e8f0;
-  padding: 20px;
-  border-radius: 5px;
-  overflow-x: auto;
-  font-family: 'Courier New', monospace;
+  font-family: 'Fira Code', 'Courier New', monospace;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background: #1e1e2f;
+  overflow-x: auto;
 }
 
+.text-content code {
+  font-family: inherit;
+}
+
+/* Image Preview */
 .image-preview {
   text-align: center;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 10px;
 }
 
 .image-preview img {
   max-width: 100%;
   max-height: 70vh;
-  border-radius: 5px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
+/* Binary Content */
 .binary-content {
   text-align: center;
-  padding: 40px;
+  padding: 60px 20px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 2px dashed #cbd5e1;
+}
+
+.binary-content i {
+  font-size: 48px;
+  color: #94a3b8;
+  margin-bottom: 15px;
+}
+
+.binary-content p {
+  color: #64748b;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.binary-content .btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 25px;
+  background: #667eea;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.binary-content .btn-download:hover {
+  background: #5a67d8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
 }
 
 /* Loading States */
@@ -811,5 +918,23 @@
   .item-size {
     width: auto;
     margin-left: 40px;
+  }
+  
+  .modal-content {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .modal-header {
+    padding: 15px;
+  }
+  
+  .modal-body {
+    padding: 15px;
+  }
+  
+  .text-content pre {
+    padding: 15px;
+    font-size: 12px;
   }
 }
