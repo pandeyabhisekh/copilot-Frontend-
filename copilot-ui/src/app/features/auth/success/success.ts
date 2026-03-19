@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';  // ✅ Add ChangeDetectorRef
+import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';  // ✅ Add NgZone
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -70,7 +70,8 @@ export class SuccessComponent implements OnInit {
   constructor(
     private router: Router,
     private http: HttpClient,
-    private cd: ChangeDetectorRef  // ✅ Add this
+    private cd: ChangeDetectorRef,
+    private ngZone: NgZone  // ✅ Add NgZone
   ) {}
 
   ngOnInit(): void {
@@ -152,24 +153,28 @@ export class SuccessComponent implements OnInit {
     this.http.get(`${this.projectApiUrl}/history`, { headers })
       .subscribe({
         next: (data: any) => {
-          this.historyItems = data || [];
-          this.loadingHistory = false;
-          console.log('✅ History loaded successfully:', this.historyItems.length, 'items');
+          this.ngZone.run(() => {  // ✅ Wrap in NgZone
+            this.historyItems = data || [];
+            this.loadingHistory = false;
+            console.log('✅ History loaded successfully:', this.historyItems.length, 'items');
+            this.cd.detectChanges();
+          });
         },
         error: (err) => {
-          this.loadingHistory = false;
-          console.error('❌ History error:', err);
-          console.error('❌ Error status:', err.status);
-          console.error('❌ Error message:', err.message);
-          
-          if (err.status === 401) {
-            this.historyError = 'Session expired. Please login again.';
-            setTimeout(() => this.logout(), 3000);
-          } else if (err.status === 404) {
-            this.historyError = 'History endpoint not found.';
-          } else {
-            this.historyError = 'Failed to load history. Please try again.';
-          }
+          this.ngZone.run(() => {
+            this.loadingHistory = false;
+            console.error('❌ History error:', err);
+            
+            if (err.status === 401) {
+              this.historyError = 'Session expired. Please login again.';
+              setTimeout(() => this.logout(), 3000);
+            } else if (err.status === 404) {
+              this.historyError = 'History endpoint not found.';
+            } else {
+              this.historyError = 'Failed to load history. Please try again.';
+            }
+            this.cd.detectChanges();
+          });
         }
       });
   }
@@ -194,14 +199,19 @@ export class SuccessComponent implements OnInit {
     this.http.get(`${this.projectApiUrl}/projects`, { headers })
       .subscribe({
         next: (data: any) => {
-          const project = data?.find((p: any) => p.name === projectName);
-          if (project) {
-            console.log('📁 Project found:', project);
-            // Navigate to project view or show details
-          }
+          this.ngZone.run(() => {
+            const project = data?.find((p: any) => p.name === projectName);
+            if (project) {
+              console.log('📁 Project found:', project);
+            }
+            this.cd.detectChanges();
+          });
         },
         error: (err) => {
-          console.error('❌ Error loading project:', err);
+          this.ngZone.run(() => {
+            console.error('❌ Error loading project:', err);
+            this.cd.detectChanges();
+          });
         }
       });
   }
@@ -212,20 +222,24 @@ export class SuccessComponent implements OnInit {
     this.http.get(`${this.projectApiUrl}/files`, { headers })
       .subscribe({
         next: (data: any) => {
-          const file = data?.find((f: any) => f.filename === filename);
-          if (file) {
-            console.log('📄 File found:', file);
-            // Download or show file details
-          }
+          this.ngZone.run(() => {
+            const file = data?.find((f: any) => f.filename === filename);
+            if (file) {
+              console.log('📄 File found:', file);
+            }
+            this.cd.detectChanges();
+          });
         },
         error: (err) => {
-          console.error('❌ Error loading file:', err);
+          this.ngZone.run(() => {
+            console.error('❌ Error loading file:', err);
+            this.cd.detectChanges();
+          });
         }
       });
   }
 
   clearHistory(): void {
-    // TODO: Implement delete history endpoint
     console.log('Clear history clicked');
   }
 
@@ -288,19 +302,27 @@ export class SuccessComponent implements OnInit {
     this.http.get(`${this.authApiUrl}/github/repo/${owner}/${repo}`, { headers })
       .subscribe({
         next: (data: any) => {
-          this.repository = data;
-          this.loading = false;
-          this.activeTab = 'info';
-          this.loadContents('');
-          
-          // Save to history
-          this.saveToHistory('github_repo', this.repoUrl, data);
+          this.ngZone.run(() => {
+            this.repository = data;
+            this.loading = false;
+            this.activeTab = 'info';
+            this.loadContents('');
+            
+            // Save to history
+            this.saveToHistory('github_repo', this.repoUrl, data);
+            
+            // Multiple change detections to be safe
+            this.cd.detectChanges();
+            setTimeout(() => this.cd.detectChanges(), 50);
+          });
         },
         error: (err) => {
-          console.error('❌ Error via auth service:', err);
-          
-          // Try direct GitHub API as fallback
-          this.fetchRepositoryDirect(owner, repo);
+          this.ngZone.run(() => {
+            console.error('❌ Error via auth service:', err);
+            
+            // Try direct GitHub API as fallback
+            this.fetchRepositoryDirect(owner, repo);
+          });
         }
       });
   }
@@ -311,17 +333,24 @@ export class SuccessComponent implements OnInit {
     this.http.get(`https://api.github.com/repos/${owner}/${repo}`, { headers })
       .subscribe({
         next: (data: any) => {
-          this.repository = data;
-          this.loading = false;
-          this.activeTab = 'info';
-          this.loadContentsDirect(owner, repo, '');
-          
-          // Save to history
-          this.saveToHistory('github_repo', this.repoUrl, data);
+          this.ngZone.run(() => {
+            this.repository = data;
+            this.loading = false;
+            this.activeTab = 'info';
+            this.loadContentsDirect(owner, repo, '');
+            
+            // Save to history
+            this.saveToHistory('github_repo', this.repoUrl, data);
+            
+            this.cd.detectChanges();
+          });
         },
         error: (err) => {
-          this.loading = false;
-          this.error = err.error?.message || 'Failed to fetch repository';
+          this.ngZone.run(() => {
+            this.loading = false;
+            this.error = err.error?.message || 'Failed to fetch repository';
+            this.cd.detectChanges();
+          });
         }
       });
   }
@@ -342,17 +371,22 @@ export class SuccessComponent implements OnInit {
 
     this.http.get(url, { headers }).subscribe({
       next: (data: any) => {
-        this.repoContents = Array.isArray(data) ? [...data] : [];
-        this.loadingContents = false;
-        this.activeTab = 'contents';
-        console.log('✅ Contents loaded:', this.repoContents.length, 'items');
+        this.ngZone.run(() => {
+          this.repoContents = Array.isArray(data) ? [...data] : [];
+          this.loadingContents = false;
+          this.activeTab = 'contents';
+          console.log('✅ Contents loaded:', this.repoContents.length, 'items');
+          this.cd.detectChanges();
+        });
       },
       error: (err) => {
-        console.error('❌ Error loading contents via auth:', err);
-        
-        // Try direct GitHub API
-        const [owner, repo] = this.repository.full_name.split('/');
-        this.loadContentsDirect(owner, repo, path);
+        this.ngZone.run(() => {
+          console.error('❌ Error loading contents via auth:', err);
+          
+          // Try direct GitHub API
+          const [owner, repo] = this.repository.full_name.split('/');
+          this.loadContentsDirect(owner, repo, path);
+        });
       }
     });
   }
@@ -365,13 +399,19 @@ export class SuccessComponent implements OnInit {
 
     this.http.get(url, { headers }).subscribe({
       next: (data: any) => {
-        this.repoContents = Array.isArray(data) ? [...data] : [];
-        this.loadingContents = false;
-        this.activeTab = 'contents';
+        this.ngZone.run(() => {
+          this.repoContents = Array.isArray(data) ? [...data] : [];
+          this.loadingContents = false;
+          this.activeTab = 'contents';
+          this.cd.detectChanges();
+        });
       },
       error: (err) => {
-        this.loadingContents = false;
-        this.error = 'Failed to load contents';
+        this.ngZone.run(() => {
+          this.loadingContents = false;
+          this.error = 'Failed to load contents';
+          this.cd.detectChanges();
+        });
       }
     });
   }
@@ -392,6 +432,7 @@ export class SuccessComponent implements OnInit {
     }
 
     this.breadcrumbs = crumbs;
+    this.cd.detectChanges();
   }
 
   navigateToFolder(item: any): void {
@@ -415,6 +456,9 @@ export class SuccessComponent implements OnInit {
       this.selectedFile = item;
       this.showFileViewer = true;
       this.loadFileContent();
+      
+      // Force view update
+      this.cd.detectChanges();
     }
   }
 
@@ -423,6 +467,7 @@ export class SuccessComponent implements OnInit {
     this.selectedFile = null;
     this.fileContent = '';
     this.fileError = '';
+    this.cd.detectChanges();
   }
 
   loadFileContent(): void {
@@ -440,20 +485,26 @@ export class SuccessComponent implements OnInit {
     this.http.get(`${this.authApiUrl}/github/repo/${owner}/${repo}/file/${this.selectedFile.path}`, { headers })
       .subscribe({
         next: (data: any) => {
-          if (data.type === 'text') {
-            this.fileContent = data.content;
-          }
-          this.loadingFile = false;
-          console.log('✅ File content loaded');
-          
-          // ✅ FORCE CHANGE DETECTION
-          this.cd.detectChanges();
+          this.ngZone.run(() => {
+            if (data.type === 'text') {
+              this.fileContent = data.content;
+            }
+            this.loadingFile = false;
+            console.log('✅ File content loaded');
+            
+            // Multiple change detections to ensure view updates
+            this.cd.detectChanges();
+            setTimeout(() => this.cd.detectChanges(), 50);
+            setTimeout(() => this.cd.detectChanges(), 100);
+          });
         },
         error: (err) => {
-          console.error('❌ Error loading file via auth:', err);
-          
-          // Try direct download
-          this.loadFileContentDirect();
+          this.ngZone.run(() => {
+            console.error('❌ Error loading file via auth:', err);
+            
+            // Try direct download
+            this.loadFileContentDirect();
+          });
         }
       });
   }
@@ -472,18 +523,26 @@ export class SuccessComponent implements OnInit {
         return response.text();
       })
       .then(data => {
-        this.fileContent = data;
-        this.loadingFile = false;
-        console.log('✅ File content loaded directly, length:', data.length);
-        
-        // ✅ FORCE CHANGE DETECTION
-        this.cd.detectChanges();
+        this.ngZone.run(() => {
+          this.fileContent = data;
+          this.loadingFile = false;
+          console.log('✅ File content loaded directly, length:', data.length);
+          
+          // Multiple change detections with delays
+          this.cd.detectChanges();
+          setTimeout(() => this.cd.detectChanges(), 10);
+          setTimeout(() => this.cd.detectChanges(), 50);
+          setTimeout(() => this.cd.detectChanges(), 100);
+          setTimeout(() => this.cd.detectChanges(), 200);
+        });
       })
       .catch(err => {
-        console.error('❌ Error loading file directly:', err);
-        this.loadingFile = false;
-        this.fileError = err.message || 'Failed to load file';
-        this.cd.detectChanges();
+        this.ngZone.run(() => {
+          console.error('❌ Error loading file directly:', err);
+          this.loadingFile = false;
+          this.fileError = err.message || 'Failed to load file';
+          this.cd.detectChanges();
+        });
       });
   }
 
@@ -537,11 +596,15 @@ export class SuccessComponent implements OnInit {
                    payload.repo_data, { headers })
       .subscribe({
         next: () => {
-          console.log('✅ Search saved to history');
-          this.loadHistory(); // Reload history
+          this.ngZone.run(() => {
+            console.log('✅ Search saved to history');
+            this.loadHistory(); // Reload history
+          });
         },
         error: (err) => {
-          console.error('❌ Error saving to history:', err);
+          this.ngZone.run(() => {
+            console.error('❌ Error saving to history:', err);
+          });
         }
       });
   }
